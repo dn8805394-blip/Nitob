@@ -1,24 +1,17 @@
 import React from 'react';
-import { X, Shield, Trash2, Sliders } from 'lucide-react';
-import { HalloweenConfig } from '../types';
+import { X, Shield, Trash2, Cpu, Zap } from 'lucide-react';
 import { NitobLogo } from './NitobLogo';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  halloweenConfig: HalloweenConfig;
-  setHalloweenConfig: React.Dispatch<React.SetStateAction<HalloweenConfig>>;
   onClearAllChats: () => void;
-  onReplayIntro: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
-  halloweenConfig,
-  setHalloweenConfig,
   onClearAllChats,
-  onReplayIntro,
 }) => {
   if (!isOpen) return null;
 
@@ -44,61 +37,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Options List */}
         <div className="space-y-3.5 text-sm">
-          {/* Festive Leaves Toggle */}
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/5">
-            <div className="flex items-center gap-3">
-              <span className="text-lg">🍂</span>
-              <div>
-                <div className="font-medium text-gray-200 text-xs md:text-sm">Hiệu ứng lá vàng rơi</div>
-                <div className="text-[11px] text-gray-400">Không khí nhẹ nhàng mùa thu</div>
-              </div>
+          {/* AI Model info */}
+          <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 space-y-1.5">
+            <div className="flex items-center gap-2 text-indigo-400 font-medium text-xs">
+              <Zap className="w-3.5 h-3.5" />
+              <span>Chế độ Nitob Lite Tinh gọn</span>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={halloweenConfig.leavesEnabled}
-                onChange={(e) =>
-                  setHalloweenConfig((prev) => ({ ...prev, leavesEnabled: e.target.checked }))
-                }
-                className="sr-only peer"
-              />
-              <div className="w-10 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-500"></div>
-            </label>
-          </div>
-
-          {/* Replay Theater Intro */}
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/5">
-            <div className="flex items-center gap-3">
-              <span className="text-lg">🎃</span>
-              <div>
-                <div className="font-medium text-gray-200 text-xs md:text-sm">Mở lại rèm lễ hội</div>
-                <div className="text-[11px] text-gray-400">Xem lại hiệu ứng kéo rèm</div>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                onClose();
-                onReplayIntro();
-              }}
-              className="px-3 py-1.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 text-xs font-medium transition-colors cursor-pointer border border-orange-500/30"
-            >
-              Mở lại
-            </button>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Tối ưu hóa token và phản hồi trọng tâm, trực diện, không có từ ngữ thừa thãi.
+            </p>
           </div>
 
           {/* Security & Privacy */}
           <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 space-y-1.5">
-            <div className="flex items-center gap-2 text-green-400 font-medium text-xs">
+            <div className="flex items-center gap-2 text-emerald-400 font-medium text-xs">
               <Shield className="w-3.5 h-3.5" />
-              <span>Nano Core Security & Privacy</span>
+              <span>Bảo mật & Quyền riêng tư</span>
             </div>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Dữ liệu được xử lý độc lập qua máy chủ API bảo mật phía backend. Khóa API không bao giờ được gửi về trình duyệt của người dùng.
+              Dữ liệu được xử lý độc lập qua máy chủ API bảo mật phía backend. Khóa API không bao giờ được gửi về trình duyệt.
             </p>
           </div>
 
           {/* Clear History */}
-          <div className="pt-1">
+          <div className="pt-2">
             <button
               onClick={() => {
                 if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện?')) {

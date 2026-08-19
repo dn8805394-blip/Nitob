@@ -4,9 +4,8 @@ import {
   Plus, 
   Settings
 } from 'lucide-react';
-import { Conversation, Message, HalloweenConfig } from './types';
+import { Conversation, Message } from './types';
 import { AnimatedBackground } from './components/AnimatedBackground';
-import { HalloweenIntro } from './components/HalloweenIntro';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { PromptInput } from './components/PromptInput';
@@ -14,7 +13,6 @@ import { SettingsModal } from './components/SettingsModal';
 import { NitobLogo } from './components/NitobLogo';
 
 const STORAGE_KEY = 'nitob_conversations_v1';
-const HALLOWEEN_CONFIG_KEY = 'nitob_halloween_cfg_v1';
 
 export default function App() {
   const [conversations, setConversations] = useState<Conversation[]>(() => {
@@ -32,24 +30,6 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const [halloweenConfig, setHalloweenConfig] = useState<HalloweenConfig>(() => {
-    try {
-      const saved = localStorage.getItem(HALLOWEEN_CONFIG_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          ...parsed,
-          showIntro: true, // Always start with festival intro on website visit
-        };
-      }
-    } catch {}
-    return {
-      showIntro: true,
-      leavesEnabled: true,
-      pumpkinsVisible: true,
-    };
-  });
-
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Save conversations to localStorage
@@ -58,13 +38,6 @@ export default function App() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
     } catch {}
   }, [conversations]);
-
-  // Save Halloween config
-  useEffect(() => {
-    try {
-      localStorage.setItem(HALLOWEEN_CONFIG_KEY, JSON.stringify(halloweenConfig));
-    } catch {}
-  }, [halloweenConfig]);
 
   // Get active conversation messages
   const activeConversation = conversations.find((c) => c.id === activeId);
@@ -138,13 +111,10 @@ export default function App() {
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
-      setConversations((prev) => [newConv, ...prev]);
-      setActiveId(newId);
       targetConvId = newId;
       currentConv = newConv;
-    } else if (currentConv.messages.length === 0) {
-      const generatedTitle = textToSend.slice(0, 30) + (textToSend.length > 30 ? '...' : '');
-      handleRenameConversation(targetConvId, generatedTitle);
+      setConversations((prev) => [newConv, ...prev]);
+      setActiveId(newId);
     }
 
     const userMessage: Message = {
@@ -159,18 +129,20 @@ export default function App() {
       id: aiMessageId,
       role: 'assistant',
       content: '',
-      timestamp: Date.now() + 1,
+      timestamp: Date.now(),
       isStreaming: true,
     };
 
-    // Update conversation state with user message and placeholder AI message
+    // Update conversation with user message & pending AI message
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id === targetConvId) {
+          const updatedMessages = [...c.messages, userMessage, initialAiMessage];
           return {
             ...c,
+            title: c.messages.length === 0 ? textToSend.slice(0, 30) + (textToSend.length > 30 ? '...' : '') : c.title,
+            messages: updatedMessages,
             updatedAt: Date.now(),
-            messages: [...c.messages, userMessage, initialAiMessage],
           };
         }
         return c;
@@ -277,7 +249,6 @@ export default function App() {
       while (!isAborted) {
         if (displayedText.length < fullReceivedText.length) {
           const remaining = fullReceivedText.length - displayedText.length;
-          // Smooth, organic pace: 2-3 chars for small queue, dynamically adjusts if buffer builds up
           const step = remaining > 160 ? 10 : remaining > 70 ? 5 : remaining > 30 ? 3 : 2;
           displayedText = fullReceivedText.slice(0, displayedText.length + step);
 
@@ -300,7 +271,6 @@ export default function App() {
         } else if (isNetworkDone) {
           break;
         } else {
-          // Waiting for more chunks from the network
           await new Promise((r) => setTimeout(r, 30));
         }
       }
@@ -371,17 +341,8 @@ export default function App() {
 
   return (
     <div className="relative flex h-screen w-screen overflow-hidden text-[#e3e3e3] bg-[#0d0d0d] select-text">
-      {/* Animated Dynamic Background */}
-      <AnimatedBackground leavesEnabled={halloweenConfig.leavesEnabled} />
-
-      {/* Halloween Curtain Intro on first visit or replay */}
-      {halloweenConfig.showIntro && (
-        <HalloweenIntro
-          onComplete={() => {
-            setHalloweenConfig((prev) => ({ ...prev, showIntro: false }));
-          }}
-        />
-      )}
+      {/* Clean Ambient Dark Background */}
+      <AnimatedBackground />
 
       {/* Collapsible Sidebar */}
       <Sidebar
@@ -394,7 +355,6 @@ export default function App() {
         onDeleteConversation={handleDeleteConversation}
         onRenameConversation={handleRenameConversation}
         onOpenSettings={() => setShowSettings(true)}
-        onReplayIntro={() => setHalloweenConfig((prev) => ({ ...prev, showIntro: true }))}
       />
 
       {/* Main Workspace */}
@@ -477,10 +437,7 @@ export default function App() {
       <SettingsModal
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
-        halloweenConfig={halloweenConfig}
-        setHalloweenConfig={setHalloweenConfig}
         onClearAllChats={handleClearAllChats}
-        onReplayIntro={() => setHalloweenConfig((prev) => ({ ...prev, showIntro: true }))}
       />
     </div>
   );

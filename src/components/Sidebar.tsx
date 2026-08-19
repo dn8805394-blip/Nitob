@@ -22,7 +22,6 @@ interface SidebarProps {
   onDeleteConversation: (id: string) => void;
   onRenameConversation: (id: string, newTitle: string) => void;
   onOpenSettings: () => void;
-  onReplayIntro: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -70,16 +69,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           isOpen 
             ? 'w-[276px] translate-x-0 opacity-100 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7),inset_0_1px_1px_0_rgba(255,255,255,0.14)]' 
             : 'w-0 -translate-x-full opacity-0 pointer-events-none'
-        } bg-[#111216]/55 backdrop-blur-3xl backdrop-saturate-150 border border-white/[0.07]`}
+        } bg-[#111216]/75 backdrop-blur-3xl border border-white/[0.07]`}
       >
-        {/* Subtle Liquid Glass Specular Gradient Sheen */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-40"
-          style={{
-            background: 'radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.01) 60%, transparent 100%)',
-          }}
-        />
-
         <div className="relative z-10 w-[276px] flex flex-col h-full p-3.5">
           {/* Header & Brand */}
           <div className="flex items-center justify-between px-1.5 py-1.5 mb-3">

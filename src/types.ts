@@ -22,9 +22,3 @@ export interface Suggestion {
   icon: 'sparkles' | 'code' | 'lightbulb' | 'compass' | 'book' | 'pen';
   prompt: string;
 }
-
-export interface HalloweenConfig {
-  showIntro: boolean;
-  leavesEnabled: boolean;
-  pumpkinsVisible: boolean;
-}

@@ -3,7 +3,7 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #0b0f19;
+    background-color: #09090b;
     color: #e2e8f0;
     overflow-x: hidden;
     user-select: text;
@@ -27,35 +27,6 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
-}
-
-/* Velvet Curtain Texture & Lighting Effect */
-.curtain-fabric-left {
-  background: linear-gradient(
-    90deg,
-    #140205 0%,
-    #2c060d 15%,
-    #500b17 30%,
-    #2a040b 50%,
-    #5c0d1b 70%,
-    #1f0308 85%,
-    #3b0811 100%
-  );
-  box-shadow: inset -20px 0 50px rgba(0, 0, 0, 0.8), 10px 0 30px rgba(0, 0, 0, 0.9);
-}
-
-.curtain-fabric-right {
-  background: linear-gradient(
-    90deg,
-    #3b0811 0%,
-    #1f0308 15%,
-    #5c0d1b 30%,
-    #2a040b 50%,
-    #500b17 70%,
-    #2c060d 85%,
-    #140205 100%
-  );
-  box-shadow: inset 20px 0 50px rgba(0, 0, 0, 0.8), -10px 0 30px rgba(0, 0, 0, 0.9);
 }
 
 /* Markdown styling inside AI response */
@@ -110,13 +81,13 @@
 }
 
 .markdown-content pre {
-  background: rgba(8, 12, 22, 0.75);
+  background: rgba(12, 14, 20, 0.85);
   backdrop-filter: blur(12px);
   padding: 1rem;
   border-radius: 0.75rem;
   overflow-x: auto;
   margin: 1rem 0;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .markdown-content pre code {
@@ -127,7 +98,7 @@
 }
 
 .markdown-content blockquote {
-  border-left: 3px solid #38bdf8;
+  border-left: 3px solid #6366f1;
   padding-left: 0.9rem;
   font-style: italic;
   color: #94a3b8;
@@ -152,100 +123,4 @@
   background: rgba(255, 255, 255, 0.04);
   color: #f1f5f9;
   font-weight: 600;
-}
-
-/* Shimmer / Breathing Animations */
-@keyframes pumpkinGlow {
-  0%, 100% {
-    filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.65)) drop-shadow(0 0 35px rgba(234, 88, 12, 0.35));
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    filter: drop-shadow(0 0 25px rgba(249, 115, 22, 0.9)) drop-shadow(0 0 50px rgba(234, 88, 12, 0.6));
-    transform: translateY(-8px) rotate(2deg);
-  }
-}
-
-.pumpkin-flicker {
-  animation: pumpkinGlow 3.5s ease-in-out infinite;
-}
-
-@keyframes leafDrift {
-  0% {
-    transform: translateY(-50px) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.9;
-  }
-  90% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateY(105vh) translateX(80px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-@keyframes gentlePulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.05); }
-}
-
-.animate-gentle-pulse {
-  animation: gentlePulse 4s ease-in-out infinite;
-}
-
-/* Modern Dynamic Aurora Drift Animations */
-@keyframes aurora1 {
-  0%, 100% {
-    transform: translate(0px, 0px) scale(1);
-    opacity: 0.35;
-  }
-  33% {
-    transform: translate(60px, 40px) scale(1.1);
-    opacity: 0.5;
-  }
-  66% {
-    transform: translate(-30px, 70px) scale(0.95);
-    opacity: 0.3;
-  }
-}
-
-@keyframes aurora2 {
-  0%, 100% {
-    transform: translate(0px, 0px) scale(1);
-    opacity: 0.3;
-  }
-  33% {
-    transform: translate(-50px, -40px) scale(1.08);
-    opacity: 0.45;
-  }
-  66% {
-    transform: translate(40px, -60px) scale(0.92);
-    opacity: 0.25;
-  }
-}
-
-@keyframes aurora3 {
-  0%, 100% {
-    transform: translate(0px, 0px) scale(0.95);
-    opacity: 0.2;
-  }
-  50% {
-    transform: translate(70px, -30px) scale(1.15);
-    opacity: 0.35;
-  }
-}
-
-.animate-aurora-1 {
-  animation: aurora1 20s ease-in-out infinite alternate;
-}
-
-.animate-aurora-2 {
-  animation: aurora2 24s ease-in-out infinite alternate;
-}
-
-.animate-aurora-3 {
-  animation: aurora3 28s ease-in-out infinite alternate;
 }

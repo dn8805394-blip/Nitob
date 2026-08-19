@@ -29,6 +29,50 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
+/* Halloween Velvet Curtains Texture & Ambient Lighting */
+.curtain-fabric-left {
+  background: linear-gradient(
+    90deg,
+    #140205 0%,
+    #2c060d 15%,
+    #500b17 30%,
+    #2a040b 50%,
+    #5c0d1b 70%,
+    #1f0308 85%,
+    #3b0811 100%
+  );
+  box-shadow: inset -20px 0 50px rgba(0, 0, 0, 0.8), 10px 0 30px rgba(0, 0, 0, 0.9);
+}
+
+.curtain-fabric-right {
+  background: linear-gradient(
+    90deg,
+    #3b0811 0%,
+    #1f0308 15%,
+    #5c0d1b 30%,
+    #2a040b 50%,
+    #500b17 70%,
+    #2c060d 85%,
+    #140205 100%
+  );
+  box-shadow: inset 20px 0 50px rgba(0, 0, 0, 0.8), -10px 0 30px rgba(0, 0, 0, 0.9);
+}
+
+@keyframes pumpkinGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.65)) drop-shadow(0 0 28px rgba(234, 88, 12, 0.3));
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(249, 115, 22, 0.85)) drop-shadow(0 0 45px rgba(234, 88, 12, 0.5));
+    transform: translateY(-6px) rotate(1.5deg);
+  }
+}
+
+.pumpkin-flicker {
+  animation: pumpkinGlow 3.5s ease-in-out infinite;
+}
+
 /* Markdown styling inside AI response */
 .markdown-content p {
   margin-bottom: 0.85rem;

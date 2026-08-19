@@ -2,15 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   PanelLeft, 
   Plus, 
-  Settings
+  Settings,
+  Cpu
 } from 'lucide-react';
 import { Conversation, Message } from './types';
 import { AnimatedBackground } from './components/AnimatedBackground';
+import { HalloweenCurtainIntro } from './components/HalloweenCurtainIntro';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { PromptInput } from './components/PromptInput';
 import { SettingsModal } from './components/SettingsModal';
 import { NitobLogo } from './components/NitobLogo';
+import { sendChatMessage, checkGeminiNanoAvailable } from './services/aiService';
 
 const STORAGE_KEY = 'nitob_conversations_v1';
 
@@ -29,8 +32,17 @@ export default function App() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const [isOnDeviceAvailable, setIsOnDeviceAvailable] = useState(false);
 
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Check On-Device Gemini Nano support in background
+  useEffect(() => {
+    checkGeminiNanoAvailable().then((res) => {
+      setIsOnDeviceAvailable(res.available);
+    });
+  }, []);
 
   // Save conversations to localStorage
   useEffect(() => {
@@ -92,7 +104,7 @@ export default function App() {
     setIsLoading(false);
   };
 
-  // Send message to Nitob AI backend
+  // Send message using Hybrid Engine (Gemini Nano On-Device -> Proxy Fallback)
   const handleSendMessage = async (customPrompt?: string) => {
     const textToSend = (customPrompt || input).trim();
     if (!textToSend || isLoading) return;
@@ -157,127 +169,71 @@ export default function App() {
 
     const conversationHistory = [...(currentConv?.messages || []), userMessage];
 
+    let fullReceivedText = '';
+    let displayedText = '';
+    let isStreamDone = false;
+    let isAborted = false;
+
+    abortController.signal.addEventListener('abort', () => {
+      isAborted = true;
+    });
+
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: conversationHistory.map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-          stream: true,
-        }),
-        signal: abortController.signal,
-      });
+      // Start Background Cadence Pacer
+      const pacingPromise = (async () => {
+        while (!isAborted) {
+          if (displayedText.length < fullReceivedText.length) {
+            const remaining = fullReceivedText.length - displayedText.length;
+            const step = remaining > 160 ? 10 : remaining > 70 ? 5 : remaining > 30 ? 3 : 2;
+            displayedText = fullReceivedText.slice(0, displayedText.length + step);
 
-      if (!response.ok) {
-        throw new Error(`Máy chủ phản hồi với mã lỗi ${response.status}`);
-      }
-
-      if (!response.body) {
-        throw new Error('Không thể đọc dữ liệu từ máy chủ.');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let fullReceivedText = '';
-      let displayedText = '';
-      let isNetworkDone = false;
-      let isAborted = false;
-
-      // Listen for abort
-      abortController.signal.addEventListener('abort', () => {
-        isAborted = true;
-      });
-
-      // Background network chunk collector
-      const networkReaderPromise = (async () => {
-        try {
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) {
-              isNetworkDone = true;
-              break;
-            }
-
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n');
-
-            for (const line of lines) {
-              if (line.startsWith('data: ')) {
-                const dataStr = line.replace('data: ', '').trim();
-                if (dataStr === '[DONE]') {
-                  isNetworkDone = true;
-                  break;
+            setConversations((prev) =>
+              prev.map((c) => {
+                if (c.id === targetConvId) {
+                  return {
+                    ...c,
+                    messages: c.messages.map((m) =>
+                      m.id === aiMessageId
+                        ? { ...m, content: displayedText, isStreaming: true }
+                        : m
+                    ),
+                  };
                 }
-                try {
-                  const parsed = JSON.parse(dataStr);
-                  if (parsed.error) {
-                    let cleanErr = parsed.error;
-                    if (typeof cleanErr === 'string') {
-                      try {
-                        const innerJson = JSON.parse(cleanErr);
-                        cleanErr = innerJson.error?.message || innerJson.message || cleanErr;
-                      } catch {}
-                    }
-                    if (cleanErr.includes('503') || cleanErr.includes('high demand') || cleanErr.includes('UNAVAILABLE')) {
-                      cleanErr = 'Máy chủ AI hiện đang tiếp nhận lượng truy cập cao. Nitob đang tự động chuyển kênh xử lý, vui lòng thử lại sau giây lát.';
-                    }
-                    fullReceivedText += `\n\n*(Thông báo: ${cleanErr})*`;
-                  } else if (parsed.text) {
-                    fullReceivedText += parsed.text;
-                  }
-                } catch {
-                  // ignore non-json
-                }
-              }
-            }
+                return c;
+              })
+            );
+            await new Promise((r) => setTimeout(r, 20));
+          } else if (isStreamDone) {
+            break;
+          } else {
+            await new Promise((r) => setTimeout(r, 30));
           }
-        } catch (readErr) {
-          if (!isAborted) {
-            console.error('Error reading stream:', readErr);
-          }
-        } finally {
-          isNetworkDone = true;
         }
       })();
 
-      // Smooth Typing Playback Loop (cadence pacing)
-      while (!isAborted) {
-        if (displayedText.length < fullReceivedText.length) {
-          const remaining = fullReceivedText.length - displayedText.length;
-          const step = remaining > 160 ? 10 : remaining > 70 ? 5 : remaining > 30 ? 3 : 2;
-          displayedText = fullReceivedText.slice(0, displayedText.length + step);
+      await sendChatMessage(
+        conversationHistory.map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
+        {
+          onChunk: (chunk) => {
+            fullReceivedText += chunk;
+          },
+          onError: (errMsg) => {
+            fullReceivedText += `\n\n*(Thông báo: ${errMsg})*`;
+          },
+          onDone: () => {
+            isStreamDone = true;
+          },
+        },
+        abortController.signal
+      );
 
-          setConversations((prev) =>
-            prev.map((c) => {
-              if (c.id === targetConvId) {
-                return {
-                  ...c,
-                  messages: c.messages.map((m) =>
-                    m.id === aiMessageId
-                      ? { ...m, content: displayedText, isStreaming: true }
-                      : m
-                  ),
-                };
-              }
-              return c;
-            })
-          );
-          await new Promise((r) => setTimeout(r, 20));
-        } else if (isNetworkDone) {
-          break;
-        } else {
-          await new Promise((r) => setTimeout(r, 30));
-        }
-      }
+      isStreamDone = true;
+      await pacingPromise;
 
-      await networkReaderPromise;
-
-      // Finalize streaming
+      // Finalize
       setConversations((prev) =>
         prev.map((c) => {
           if (c.id === targetConvId) {
@@ -313,7 +269,7 @@ export default function App() {
                     ? {
                         ...m,
                         isStreaming: false,
-                        content: `**Đã xảy ra lỗi kết nối:** ${errorText}\n\n*Vui lòng thử lại sau vài giây.*`,
+                        content: `**Thông báo:** ${errorText}\n\n*Gợi ý: Bạn có thể bật Gemini Nano trong \`chrome://flags\` để dùng On-Device không cần API Key, hoặc cấu hình \`GEMINI_API_KEY\` trên Vercel.*`,
                         error: true,
                       }
                     : m
@@ -343,6 +299,15 @@ export default function App() {
     <div className="relative flex h-screen w-screen overflow-hidden text-[#e3e3e3] bg-[#0d0d0d] select-text">
       {/* Clean Ambient Dark Background */}
       <AnimatedBackground />
+
+      {/* Halloween Curtain Intro on first visit or replay */}
+      {showIntro && (
+        <HalloweenCurtainIntro
+          onComplete={() => {
+            setShowIntro(false);
+          }}
+        />
+      )}
 
       {/* Collapsible Sidebar */}
       <Sidebar
@@ -379,12 +344,19 @@ export default function App() {
 
             <div className="flex items-center gap-2.5">
               <NitobLogo className="w-7 h-7" />
-              <h1 className="text-lg font-medium tracking-tight text-white font-['Outfit'] flex items-center">
-                Nitob 
-                <span className="text-[11px] font-normal bg-white/10 text-gray-300 px-2 py-0.5 rounded-full ml-2">
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-medium tracking-tight text-white font-['Outfit']">
+                  Nitob
+                </h1>
+                <span className="text-[10px] font-normal bg-white/10 text-gray-300 px-2 py-0.5 rounded-full border border-white/5">
                   Lite
                 </span>
-              </h1>
+                {isOnDeviceAvailable && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-medium bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    <Cpu className="w-2.5 h-2.5" /> On-Device (No API Key)
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -438,6 +410,7 @@ export default function App() {
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         onClearAllChats={handleClearAllChats}
+        onReplayIntro={() => setShowIntro(true)}
       />
     </div>
   );

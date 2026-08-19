@@ -1,17 +1,19 @@
 import React from 'react';
-import { X, Shield, Trash2, Cpu, Zap } from 'lucide-react';
+import { X, Shield, Trash2, Zap, Play } from 'lucide-react';
 import { NitobLogo } from './NitobLogo';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onClearAllChats: () => void;
+  onReplayIntro: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
   onClearAllChats,
+  onReplayIntro,
 }) => {
   if (!isOpen) return null;
 
@@ -37,6 +39,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Options List */}
         <div className="space-y-3.5 text-sm">
+          {/* Replay Halloween Curtain Intro */}
+          <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/5">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🎃</span>
+              <div>
+                <div className="font-medium text-gray-200 text-xs md:text-sm">Mở rèm Halloween</div>
+                <div className="text-[11px] text-gray-400">Xem lại hiệu ứng kéo rèm mở màn</div>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                onClose();
+                onReplayIntro();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 text-xs font-medium transition-colors cursor-pointer border border-orange-500/30"
+            >
+              <Play className="w-3 h-3" />
+              <span>Mở lại</span>
+            </button>
+          </div>
+
           {/* AI Model info */}
           <div className="p-3.5 rounded-xl bg-white/5 border border-white/5 space-y-1.5">
             <div className="flex items-center gap-2 text-indigo-400 font-medium text-xs">

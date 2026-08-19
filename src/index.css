@@ -29,6 +29,73 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
+/* Apple/VisionOS Liquid Glass Translucent Effects */
+.liquid-glass-bar {
+  background: rgba(20, 20, 24, 0.45);
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 
+    0 20px 45px -10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-bar:focus-within {
+  background: rgba(24, 24, 30, 0.6);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 24px 50px -8px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.liquid-glass-pill {
+  background: rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-pill:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.liquid-glass-active-purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(99, 102, 241, 0.2) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(192, 132, 252, 0.25);
+  box-shadow: 
+    0 4px 20px -2px rgba(168, 85, 247, 0.3),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.liquid-glass-active-pink {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(244, 63, 94, 0.2) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(244, 114, 182, 0.25);
+  box-shadow: 
+    0 4px 20px -2px rgba(236, 72, 153, 0.3),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.liquid-glass-active-amber {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(249, 115, 22, 0.2) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  box-shadow: 
+    0 4px 20px -2px rgba(245, 158, 11, 0.3),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+
 /* Halloween Velvet Curtains Texture & Ambient Lighting */
 .curtain-fabric-left {
   background: linear-gradient(
@@ -71,6 +138,54 @@
 
 .pumpkin-flicker {
   animation: pumpkinGlow 3.5s ease-in-out infinite;
+}
+
+/* Dynamic Animated Flowing RGB Gradient Text */
+@keyframes rgbGradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-rgb-text {
+  background: linear-gradient(
+    135deg,
+    #ff007f 0%,
+    #ff5e00 20%,
+    #ffbe0b 40%,
+    #00f5d4 60%,
+    #00bbf9 80%,
+    #9b5de5 90%,
+    #ff007f 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rgbGradientFlow 7s ease infinite;
+}
+
+.animate-rgb-glow {
+  text-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
+  }
+  50% {
+    box-shadow: 0 0 25px 4px rgba(168, 85, 247, 0.6), 0 0 0 2px rgba(192, 132, 252, 0.9);
+  }
+}
+
+.highlight-ai-message {
+  animation: highlightPulse 2s ease-out;
 }
 
 /* Markdown styling inside AI response */

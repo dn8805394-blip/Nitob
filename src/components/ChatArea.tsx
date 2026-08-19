@@ -6,14 +6,17 @@ import {
   Volume2, 
   VolumeX, 
   ThumbsUp, 
-  ThumbsDown
+  ThumbsDown,
+  Sparkles
 } from 'lucide-react';
 import { Message } from '../types';
 import { NitobLogo } from './NitobLogo';
+import { CreativeMediaCard } from './CreativeMediaCard';
 
 interface ChatAreaProps {
   messages: Message[];
   isLoading: boolean;
+  highlightedMessageId?: string | null;
   onSelectSuggestion?: (prompt: string) => void;
   onRetryLast: () => void;
 }
@@ -21,6 +24,7 @@ interface ChatAreaProps {
 export const ChatArea: React.FC<ChatAreaProps> = ({
   messages,
   isLoading,
+  highlightedMessageId,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -48,10 +52,8 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
     });
 
     if (activeStreamingMsg || isLoading) {
-      // 1. Khi đang trả lời -> Thanh cuộn tự động cuộn theo nội dung AI đang gõ
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     } else if (justFinishedId) {
-      // 2. Khi AI trả lời xong -> Cuộn lên dòng đầu câu trả lời của AI
       const timer = setTimeout(() => {
         const targetElement = document.getElementById(`msg-${justFinishedId}`);
         if (targetElement) {
@@ -60,7 +62,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       }, 100);
       return () => clearTimeout(timer);
     } else {
-      // Normal state update (e.g. user just sent message)
       if (messages.length > 0) {
         const lastMsg = messages[messages.length - 1];
         if (lastMsg.role === 'user') {
@@ -113,15 +114,16 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       ref={scrollContainerRef}
       className="flex-1 overflow-y-auto px-4 md:px-8 py-6 w-full max-w-3xl mx-auto flex flex-col scroll-smooth"
     >
-      {/* Empty State: Immersive Welcome Screen */}
+      {/* Empty State: Immersive Welcome Screen with Animated Dynamic RGB Text */}
       {messages.length === 0 ? (
         <div className="flex-1 flex flex-col justify-center items-center text-center my-auto">
           <div className="max-w-xl mx-auto space-y-4">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-light bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent font-['Outfit'] tracking-tight">
+            {/* Dynamic RGB Gradient Heading */}
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight font-['Outfit'] animate-rgb-text animate-rgb-glow drop-shadow-lg pb-1">
               Hello, I am Nitob.
             </h2>
-            <p className="text-gray-400 text-base md:text-lg font-light leading-relaxed">
-              Trợ lý trí tuệ nhân tạo tinh gọn, nhanh chóng và bảo mật tuyệt đối.
+            <p className="text-gray-300 text-base md:text-lg font-normal leading-relaxed">
+              Trợ lý trí tuệ nhân tạo thông minh, đầy đủ và bảo mật tuyệt đối.
             </p>
           </div>
         </div>
@@ -130,12 +132,15 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         <div className="space-y-6 pb-6">
           {messages.map((msg) => {
             const isUser = msg.role === 'user';
+            const isHighlighted = highlightedMessageId === msg.id;
 
             return (
               <div
                 key={msg.id}
                 id={`msg-${msg.id}`}
-                className={`flex gap-3 md:gap-4 scroll-mt-6 ${isUser ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-3 md:gap-4 scroll-mt-20 transition-all duration-300 ${
+                  isUser ? 'justify-end' : 'justify-start'
+                }`}
               >
                 {/* AI Avatar */}
                 {!isUser && (
@@ -148,7 +153,11 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                     className={`rounded-2xl px-5 py-3.5 text-sm md:text-[15px] leading-relaxed transition-all ${
                       isUser
                         ? 'bg-white/10 border border-white/10 text-white font-normal backdrop-blur-md rounded-tr-sm'
-                        : 'bg-[#151515]/90 border border-white/10 backdrop-blur-xl text-gray-200 rounded-tl-sm shadow-md w-full'
+                        : `bg-[#151515]/90 border backdrop-blur-xl text-gray-200 rounded-tl-sm shadow-md w-full ${
+                            isHighlighted
+                              ? 'border-purple-500 shadow-[0_0_25px_rgba(168,85,247,0.5)] ring-2 ring-purple-400/80 highlight-ai-message'
+                              : 'border-white/10'
+                          }`
                     }`}
                   >
                     {isUser ? (
@@ -159,10 +168,15 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
                           <ReactMarkdown>{msg.content}</ReactMarkdown>
                         ) : msg.isStreaming ? (
                           <div className="flex items-center gap-2 text-gray-400 py-1">
-                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                            <span className="text-xs">Nitob đang suy nghĩ...</span>
+                            <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+                            <span className="text-xs">Nitob đang xử lý yêu cầu sáng tạo...</span>
                           </div>
                         ) : null}
+
+                        {/* Render DeepAI / Creative Media Card if attached */}
+                        {msg.media && (
+                          <CreativeMediaCard media={msg.media} />
+                        )}
                       </div>
                     )}
                   </div>

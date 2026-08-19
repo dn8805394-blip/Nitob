@@ -159,7 +159,7 @@ export async function sendChatMessage(
 ): Promise<void> {
   const latestMessage = messages[messages.length - 1]?.content || '';
   const systemInstruction = 
-    `Bạn là Nitob Lite - AI tinh gọn tối đa. Trả lời thẳng vào trọng tâm câu hỏi, ngắn gọn, súc tích và chuẩn xác. Không chào hỏi rào đón.`;
+    `Bạn là Nitob - Trợ lý trí tuệ nhân tạo thông minh. Trả lời tự nhiên, đầy đủ, chi tiết, đúng trọng tâm và không cắt ngắn quá mức. Nếu người dùng chào hỏi, hãy chào lại thân thiện và lịch sự.`;
 
   // 1. Thử nghiệm Gemini Nano On-Device trước
   const nanoStatus = await checkGeminiNanoAvailable();

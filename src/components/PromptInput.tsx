@@ -6,17 +6,24 @@ import {
   MicOff, 
   Paperclip, 
   Image as ImageIcon,
+  Video as VideoIcon,
+  Music as MusicIcon,
   Sparkles,
   Zap,
   X,
   ChevronDown,
-  Info,
-  Check
+  Check,
+  Palette
 } from 'lucide-react';
+import { AppMode, CreativeMediaType } from '../types';
 
 interface PromptInputProps {
   input: string;
   setInput: (value: string) => void;
+  mode: AppMode;
+  setMode: (mode: AppMode) => void;
+  activeCreativeType: CreativeMediaType;
+  setActiveCreativeType: (type: CreativeMediaType) => void;
   onSubmit: (e: React.FormEvent) => void;
   onStop: () => void;
   isLoading: boolean;
@@ -25,6 +32,10 @@ interface PromptInputProps {
 export const PromptInput: React.FC<PromptInputProps> = ({
   input,
   setInput,
+  mode,
+  setMode,
+  activeCreativeType,
+  setActiveCreativeType,
   onSubmit,
   onStop,
   isLoading,
@@ -36,7 +47,6 @@ export const PromptInput: React.FC<PromptInputProps> = ({
   const [isRecording, setIsRecording] = useState(false);
   const [selectedAttachment, setSelectedAttachment] = useState<{ name: string; type: string } | null>(null);
   const [isModeOpen, setIsModeOpen] = useState(false);
-  const [showNotice, setShowNotice] = useState<string | null>(null);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -67,7 +77,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
     }
   };
 
-  // Speech to text integration via Web Speech Recognition
+  // Speech to text integration
   const toggleSpeechRecognition = () => {
     const SpeechRecognition = 
       (window as unknown as { SpeechRecognition?: any; webkitSpeechRecognition?: any }).SpeechRecognition || 
@@ -123,37 +133,80 @@ export const PromptInput: React.FC<PromptInputProps> = ({
     }
   };
 
-  const handleSelectUltra = () => {
-    setIsModeOpen(false);
-    setShowNotice('Chế độ này chưa có. Nitob Ultra đang được hoàn thiện và sẽ sớm ra mắt!');
-    setTimeout(() => {
-      setShowNotice(null);
-    }, 3500);
+  const isCreativeMode = mode === 'creative';
+
+  // Dynamic placeholder based on mode and creative type
+  const getPlaceholder = () => {
+    if (isCreativeMode) {
+      if (activeCreativeType === 'image') return 'Mô tả hình ảnh bạn muốn tạo với DeepAI (VD: Phi hành gia trên sao hỏa)...';
+      if (activeCreativeType === 'video') return 'Mô tả kịch bản video bạn muốn tạo (VD: Thành phố tương lai ban đêm)...';
+      if (activeCreativeType === 'music') return 'Mô tả phong cách âm nhạc hoặc bài hát (VD: Nhạc lofi thư giãn đêm muộn)...';
+      return 'Nhập ý tưởng sáng tạo tại đây...';
+    }
+    return 'Enter a prompt here...';
   };
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pb-6 relative">
-      {/* Toast Notice if Ultra is clicked */}
-      {showNotice && (
-        <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/95 border border-amber-500/40 text-amber-300 text-xs shadow-2xl backdrop-blur-xl animate-fade-in">
-          <Info className="w-4 h-4 flex-shrink-0 text-amber-400" />
-          <span>{showNotice}</span>
-          <button 
-            onClick={() => setShowNotice(null)} 
-            className="ml-1 p-0.5 text-zinc-400 hover:text-white"
+      {/* 3 Creative Mode Sub-Tools (Image, Video, Music) with Liquid Glass Aesthetic */}
+      {isCreativeMode && (
+        <div className="flex items-center gap-2 mb-2.5 px-2 animate-fade-in select-none">
+          <span className="text-[11px] font-medium text-purple-300 flex items-center gap-1.5 mr-1 drop-shadow-sm">
+            <Palette className="w-3.5 h-3.5" />
+            <span>Công cụ Creative:</span>
+          </span>
+
+          {/* 1. Image Tool */}
+          <button
+            type="button"
+            onClick={() => setActiveCreativeType('image')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all ${
+              activeCreativeType === 'image'
+                ? 'liquid-glass-active-purple text-white scale-105 shadow-md shadow-purple-500/20'
+                : 'liquid-glass-pill text-gray-300 hover:text-white'
+            }`}
           >
-            <X className="w-3.5 h-3.5" />
+            <ImageIcon className="w-3.5 h-3.5 text-purple-300" />
+            <span>Image (DeepAI)</span>
+          </button>
+
+          {/* 2. Video Tool */}
+          <button
+            type="button"
+            onClick={() => setActiveCreativeType('video')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all ${
+              activeCreativeType === 'video'
+                ? 'liquid-glass-active-pink text-white scale-105 shadow-md shadow-pink-500/20'
+                : 'liquid-glass-pill text-gray-300 hover:text-white'
+            }`}
+          >
+            <VideoIcon className="w-3.5 h-3.5 text-pink-300" />
+            <span>Video</span>
+          </button>
+
+          {/* 3. Music Tool */}
+          <button
+            type="button"
+            onClick={() => setActiveCreativeType('music')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all ${
+              activeCreativeType === 'music'
+                ? 'liquid-glass-active-amber text-white scale-105 shadow-md shadow-amber-500/20'
+                : 'liquid-glass-pill text-gray-300 hover:text-white'
+            }`}
+          >
+            <MusicIcon className="w-3.5 h-3.5 text-amber-300" />
+            <span>Music</span>
           </button>
         </div>
       )}
 
       {/* Attachment Pill if any */}
       {selectedAttachment && (
-        <div className="flex items-center gap-2 mb-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md w-fit text-xs text-orange-200 border border-white/10">
+        <div className="flex items-center gap-2 mb-2 px-3.5 py-1.5 rounded-full liquid-glass-pill w-fit text-xs text-purple-200">
           {selectedAttachment.type === 'image' ? (
-            <ImageIcon className="w-3.5 h-3.5 text-orange-400" />
+            <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
           ) : (
-            <Paperclip className="w-3.5 h-3.5 text-orange-400" />
+            <Paperclip className="w-3.5 h-3.5 text-purple-400" />
           )}
           <span className="truncate max-w-[200px]">{selectedAttachment.name}</span>
           <button
@@ -165,38 +218,53 @@ export const PromptInput: React.FC<PromptInputProps> = ({
         </div>
       )}
 
-      {/* Immersive Rounded Input Pill */}
+      {/* Ultra-sleek Liquid Glass Bar */}
       <form
         onSubmit={(e) => {
           onSubmit(e);
           setSelectedAttachment(null);
         }}
-        className="w-full bg-[#181818]/95 border border-white/10 rounded-full px-3.5 py-2 flex items-center gap-2 shadow-2xl backdrop-blur-xl focus-within:border-white/20 transition-all"
+        className="w-full liquid-glass-bar rounded-full px-3.5 py-2 flex items-center gap-2 transition-all"
       >
         {/* Mode Selector Pill inside Prompt Bar */}
         <div className="relative flex-shrink-0" ref={dropdownRef}>
           <button
             type="button"
             onClick={() => setIsModeOpen(!isModeOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-xs text-gray-200 font-medium transition-colors cursor-pointer select-none"
-            title="Chọn chế độ mô hình"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer select-none ${
+              isCreativeMode
+                ? 'liquid-glass-active-purple text-purple-100'
+                : 'liquid-glass-pill text-gray-200 hover:text-white'
+            }`}
+            title="Chọn chế độ hoạt động"
           >
-            <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-            <span>Lite</span>
+            {isCreativeMode ? (
+              <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+            ) : (
+              <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
+            )}
+            <span>{isCreativeMode ? 'Creative' : 'Lite'}</span>
             <ChevronDown className="w-3 h-3 text-gray-400" />
           </button>
 
-          {/* Mode Dropdown Popover */}
+          {/* Mode Dropdown Popover with Liquid Glass Styling */}
           {isModeOpen && (
-            <div className="absolute bottom-full left-0 mb-3 w-64 p-2 rounded-2xl bg-[#1c1c1c] border border-white/10 shadow-2xl backdrop-blur-2xl z-50 space-y-1">
-              <div className="px-2.5 py-1 text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+            <div className="absolute bottom-full left-0 mb-3 w-64 p-2.5 rounded-3xl liquid-glass-bar shadow-2xl z-50 space-y-1.5">
+              <div className="px-2.5 py-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                 Chế độ hoạt động
               </div>
 
-              {/* Mode: Lite (Active) */}
+              {/* Mode: Lite */}
               <div
-                onClick={() => setIsModeOpen(false)}
-                className="flex items-center justify-between p-2 rounded-xl bg-white/10 border border-white/10 text-xs cursor-pointer text-white"
+                onClick={() => {
+                  setMode('standard');
+                  setIsModeOpen(false);
+                }}
+                className={`flex items-center justify-between p-2.5 rounded-2xl text-xs cursor-pointer transition-all ${
+                  !isCreativeMode 
+                    ? 'bg-white/10 text-white shadow-inner' 
+                    : 'hover:bg-white/5 text-gray-300 hover:text-white'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
@@ -205,35 +273,40 @@ export const PromptInput: React.FC<PromptInputProps> = ({
                   <div>
                     <div className="font-medium flex items-center gap-1.5">
                       <span>Nitob Lite</span>
-                      <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-normal">
-                        Mặc định
-                      </span>
                     </div>
-                    <div className="text-[10px] text-gray-400">Phản hồi nhanh, tinh gọn</div>
+                    <div className="text-[10px] text-gray-400">Trò chuyện chuẩn, đầy đủ</div>
                   </div>
                 </div>
-                <Check className="w-3.5 h-3.5 text-amber-400" />
+                {!isCreativeMode && <Check className="w-3.5 h-3.5 text-amber-400" />}
               </div>
 
-              {/* Mode: Ultra (Unavailable) */}
+              {/* Mode: Creative (DeepAI Image, Video, Music) */}
               <div
-                onClick={handleSelectUltra}
-                className="flex items-center justify-between p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 text-xs cursor-pointer text-gray-300 transition-colors group"
+                onClick={() => {
+                  setMode('creative');
+                  setIsModeOpen(false);
+                }}
+                className={`flex items-center justify-between p-2.5 rounded-2xl text-xs cursor-pointer transition-all ${
+                  isCreativeMode 
+                    ? 'liquid-glass-active-purple text-white shadow-inner' 
+                    : 'hover:bg-white/5 text-gray-300 hover:text-white'
+                }`}
               >
                 <div className="flex items-center gap-2.5">
                   <div className="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Sparkles className="w-3.5 h-3.5 text-purple-300" />
                   </div>
                   <div>
-                    <div className="font-medium flex items-center gap-1.5 text-gray-300 group-hover:text-white">
-                      <span>Nitob Ultra</span>
-                      <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded font-normal">
-                        Chưa có
+                    <div className="font-medium flex items-center gap-1.5 text-purple-200">
+                      <span>Creative Studio</span>
+                      <span className="text-[9px] bg-purple-500/30 text-purple-200 px-1 py-0.2 rounded font-normal">
+                        DeepAI
                       </span>
                     </div>
-                    <div className="text-[10px] text-gray-400">Suy luận sâu, đa tác vụ</div>
+                    <div className="text-[10px] text-gray-400">Tạo Ảnh, Video, Âm nhạc</div>
                   </div>
                 </div>
+                {isCreativeMode && <Check className="w-3.5 h-3.5 text-purple-400" />}
               </div>
             </div>
           )}
@@ -247,12 +320,12 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Enter a prompt here..."
-          className="bg-transparent flex-1 outline-none text-white placeholder:text-gray-500 text-sm resize-none max-h-32 min-h-[36px] py-1.5 px-2 leading-normal font-normal"
+          placeholder={getPlaceholder()}
+          className="bg-transparent flex-1 outline-none text-white placeholder:text-gray-400/80 text-sm resize-none max-h-32 min-h-[36px] py-1.5 px-2 leading-normal font-normal"
         />
 
         {/* Right Tools (Attachment, Mic, Send) */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <input
             type="file"
             ref={fileInputRef}
@@ -263,7 +336,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="p-2 text-gray-400 hover:text-white transition-colors cursor-pointer rounded-full hover:bg-white/5"
+            className="p-2 text-gray-400 hover:text-white transition-colors cursor-pointer rounded-full hover:bg-white/10"
             title="Đính kèm tệp"
           >
             <Paperclip className="w-4 h-4" />
@@ -272,7 +345,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
           <button
             type="button"
             onClick={toggleSpeechRecognition}
-            className={`p-2 transition-colors cursor-pointer rounded-full hover:bg-white/5 ${
+            className={`p-2 transition-colors cursor-pointer rounded-full hover:bg-white/10 ${
               isRecording ? 'text-rose-400 animate-pulse' : 'text-gray-400 hover:text-white'
             }`}
             title={isRecording ? 'Đang lắng nghe...' : 'Nhập bằng giọng nói'}
@@ -285,7 +358,7 @@ export const PromptInput: React.FC<PromptInputProps> = ({
               type="button"
               id="stop-generating-btn"
               onClick={onStop}
-              className="w-8 h-8 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-full flex items-center justify-center transition-all cursor-pointer"
+              className="w-8 h-8 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-sm"
               title="Dừng phản hồi"
             >
               <Square className="w-3.5 h-3.5 fill-rose-300" />
@@ -295,10 +368,12 @@ export const PromptInput: React.FC<PromptInputProps> = ({
               type="submit"
               id="send-message-btn"
               disabled={!input.trim() && !selectedAttachment}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer ${
                 input.trim() || selectedAttachment
-                  ? 'bg-white text-black hover:bg-gray-200 hover:scale-105 active:scale-95 shadow-md'
-                  : 'bg-white/10 text-gray-500 cursor-not-allowed'
+                  ? isCreativeMode
+                    ? 'liquid-glass-active-purple text-white hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/30'
+                    : 'bg-white text-black hover:bg-gray-200 hover:scale-105 active:scale-95 shadow-md'
+                  : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'
               }`}
               title="Gửi câu hỏi"
             >
@@ -310,4 +385,3 @@ export const PromptInput: React.FC<PromptInputProps> = ({
     </div>
   );
 };
-

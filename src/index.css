@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #0b0f19;
+    color: #e2e8f0;
+    overflow-x: hidden;
+    user-select: text;
+  }
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Velvet Curtain Texture & Lighting Effect */
+.curtain-fabric-left {
+  background: linear-gradient(
+    90deg,
+    #140205 0%,
+    #2c060d 15%,
+    #500b17 30%,
+    #2a040b 50%,
+    #5c0d1b 70%,
+    #1f0308 85%,
+    #3b0811 100%
+  );
+  box-shadow: inset -20px 0 50px rgba(0, 0, 0, 0.8), 10px 0 30px rgba(0, 0, 0, 0.9);
+}
+
+.curtain-fabric-right {
+  background: linear-gradient(
+    90deg,
+    #3b0811 0%,
+    #1f0308 15%,
+    #5c0d1b 30%,
+    #2a040b 50%,
+    #500b17 70%,
+    #2c060d 85%,
+    #140205 100%
+  );
+  box-shadow: inset 20px 0 50px rgba(0, 0, 0, 0.8), -10px 0 30px rgba(0, 0, 0, 0.9);
+}
+
+/* Markdown styling inside AI response */
+.markdown-content p {
+  margin-bottom: 0.85rem;
+  line-height: 1.7;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-top: 1.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.markdown-content h1 { font-size: 1.4rem; }
+.markdown-content h2 { font-size: 1.25rem; }
+.markdown-content h3 { font-size: 1.1rem; }
+
+.markdown-content ul {
+  list-style-type: disc;
+  padding-left: 1.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+  padding-left: 1.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.35rem;
+  line-height: 1.6;
+}
+
+.markdown-content code:not(pre code) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #93c5fd;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  font-size: 0.88em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.markdown-content pre {
+  background: rgba(8, 12, 22, 0.75);
+  backdrop-filter: blur(12px);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.markdown-content pre code {
+  color: #e2e8f0;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  line-height: 1.6;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid #38bdf8;
+  padding-left: 0.9rem;
+  font-style: italic;
+  color: #94a3b8;
+  margin: 0.85rem 0;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.markdown-content th {
+  background: rgba(255, 255, 255, 0.04);
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+/* Shimmer / Breathing Animations */
+@keyframes pumpkinGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.65)) drop-shadow(0 0 35px rgba(234, 88, 12, 0.35));
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    filter: drop-shadow(0 0 25px rgba(249, 115, 22, 0.9)) drop-shadow(0 0 50px rgba(234, 88, 12, 0.6));
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+.pumpkin-flicker {
+  animation: pumpkinGlow 3.5s ease-in-out infinite;
+}
+
+@keyframes leafDrift {
+  0% {
+    transform: translateY(-50px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(105vh) translateX(80px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes gentlePulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.05); }
+}
+
+.animate-gentle-pulse {
+  animation: gentlePulse 4s ease-in-out infinite;
+}
+
+/* Modern Dynamic Aurora Drift Animations */
+@keyframes aurora1 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.35;
+  }
+  33% {
+    transform: translate(60px, 40px) scale(1.1);
+    opacity: 0.5;
+  }
+  66% {
+    transform: translate(-30px, 70px) scale(0.95);
+    opacity: 0.3;
+  }
+}
+
+@keyframes aurora2 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translate(-50px, -40px) scale(1.08);
+    opacity: 0.45;
+  }
+  66% {
+    transform: translate(40px, -60px) scale(0.92);
+    opacity: 0.25;
+  }
+}
+
+@keyframes aurora3 {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(0.95);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate(70px, -30px) scale(1.15);
+    opacity: 0.35;
+  }
+}
+
+.animate-aurora-1 {
+  animation: aurora1 20s ease-in-out infinite alternate;
+}
+
+.animate-aurora-2 {
+  animation: aurora2 24s ease-in-out infinite alternate;
+}
+
+.animate-aurora-3 {
+  animation: aurora3 28s ease-in-out infinite alternate;
+}

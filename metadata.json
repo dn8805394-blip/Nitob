@@ -1,0 +1,6 @@
+{
+  "name": "Nitob",
+  "description": "Trợ lý trí tuệ nhân tạo Nitob với giao diện tối giản hiện đại và bảo mật tuyệt đối.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
